@@ -18,27 +18,27 @@ class ComponentManager : public IComponentPool
 {
     public:
         ComponentManager();
-        bool                  addComponent(Entity entity, T&& newData);
-        bool                  hasEntity(Entity entity) const override;
-        void                  destroyEntity(Entity entity) override;
-        T*                    getComponentData(Entity entity);
-        Entity                getEntityID(size_t position);
+        bool                  addComponent(Entity::Entity entity, T&& newData);
+        bool                  hasEntity(Entity::Entity entity) const override;
+        void                  destroyEntity(Entity::Entity entity) override;
+        T*                    getComponentData(Entity::Entity entity);
+        Entity::Entity        getEntityID(size_t position);
         auto                  begin();
         auto                  end();
 
     private:
         void                  initSparseArray(size_t size);
-        void                  resizeSparse(Entity entity);
+        void                  resizeSparse(Entity::Entity entity);
 
 
         std::vector<T> dense;
-        std::vector<Entity> denseMap; // Maps denseMap structure denseMap[0] tells you what entity is at pos 0 in dense
-        std::vector<Entity> sparse; // Maps entityID to position in dense i.e. sparse[2] tells you where entity 2 component is
+        std::vector<Entity::Entity> denseMap; // Maps denseMap structure denseMap[0] tells you what entity is at pos 0 in dense
+        std::vector<Entity::Entity> sparse; // Maps entityID to position in dense i.e. sparse[2] tells you where entity 2 component is
 
 };
 
 template<typename T>
-Entity ComponentManager<T>::getEntityID(size_t position)
+Entity::Entity ComponentManager<T>::getEntityID(size_t position)
 {
     return denseMap[position];
 }
@@ -56,9 +56,9 @@ auto ComponentManager<T>::end()
 }
 
 template<typename T>
-bool ComponentManager<T>::hasEntity(Entity entity) const
+bool ComponentManager<T>::hasEntity(Entity::Entity entity) const
 {
-    if (sparse[entity] == maxEntityValue)
+    if (sparse[entity] == Entity::MaxEntityValue)
     {
         return false;
     } 
@@ -67,7 +67,7 @@ bool ComponentManager<T>::hasEntity(Entity entity) const
 }
 
 template<typename T>
-void ComponentManager<T>::destroyEntity(Entity entity)
+void ComponentManager<T>::destroyEntity(Entity::Entity entity)
 {
     uint32_t indexToRemove = sparse[entity]; // index in dense to remove
     uint32_t entityAtBack = denseMap.back(); // get entity ID that's at the back
@@ -82,13 +82,13 @@ void ComponentManager<T>::destroyEntity(Entity entity)
     denseMap.pop_back();
 
     // Mark entity as deleted
-    sparse[entity] = maxEntityValue;
+    sparse[entity] = Entity::MaxEntityValue;
 }
 
 template<typename T>
 void ComponentManager<T>::initSparseArray(size_t size)
 {
-    sparse.assign(size, maxEntityValue);
+    sparse.assign(size, Entity::MaxEntityValue);
 }
 
 template<typename T>
@@ -98,30 +98,30 @@ ComponentManager<T>::ComponentManager()
 }
 
 template<typename T>
-void ComponentManager<T>::resizeSparse(Entity entity)
+void ComponentManager<T>::resizeSparse(Entity::Entity entity)
 {
     // Double the size of the sparse vector unless entityID is higher
     size_t newSize = std::max(static_cast<size_t>(entity + 1), static_cast<size_t>(sparse.size()) * 2);
 
-    sparse.resize(newSize, maxEntityValue);
+    sparse.resize(newSize, Entity::MaxEntityValue);
 }
 
 
 template<typename T>
-bool ComponentManager<T>::addComponent(Entity entity, T&& newData)
+bool ComponentManager<T>::addComponent(Entity::Entity entity, T&& newData)
 {
     if (entity >= sparse.size())
     {
         resizeSparse(entity);
     }
 
-    if (sparse[entity] == maxEntityValue)
+    if (sparse[entity] == Entity::MaxEntityValue)
     {
         dense.push_back(std::move(newData));
 
         denseMap.push_back(entity);
 
-        sparse[entity] = static_cast<Entity>(dense.size() - 1);
+        sparse[entity] = static_cast<Entity::Entity>(dense.size() - 1);
 
         return true;
     }
@@ -134,9 +134,9 @@ bool ComponentManager<T>::addComponent(Entity entity, T&& newData)
 }
 
 template<typename T>
-T* ComponentManager<T>::getComponentData(Entity entity)
+T* ComponentManager<T>::getComponentData(Entity::Entity entity)
 {
-    if (sparse[entity] == maxEntityValue)
+    if (sparse[entity] == Entity::MaxEntityValue)
     {
         #ifdef ENABLE_DEBUG_MESSAGES
             std::cout << "ERROR::Entity doesn't have this component." << std::endl;

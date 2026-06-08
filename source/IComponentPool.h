@@ -8,8 +8,8 @@ class IComponentPool
     public:
         virtual  ~IComponentPool() = default;
 
-        virtual bool hasEntity(Entity entity) const = 0;
-        virtual void destroyEntity(Entity entity) = 0;
+        virtual bool hasEntity(Entity::Entity entity) const = 0;
+        virtual void destroyEntity(Entity::Entity entity) = 0;
 };
 
 
