@@ -10,6 +10,7 @@ class IComponentPool
 
         virtual bool hasEntity(Entity::Entity entity) const = 0;
         virtual void destroyEntity(Entity::Entity entity) = 0;
+        virtual size_t size() = 0;
 };
 
 

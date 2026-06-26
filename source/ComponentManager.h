@@ -23,8 +23,11 @@ class ComponentManager : public IComponentPool
         void                  destroyEntity(Entity::Entity entity) override;
         T*                    getComponentData(Entity::Entity entity);
         Entity::Entity        getEntityID(size_t position);
+        size_t                size();
         auto                  begin();
         auto                  end();
+
+
 
     private:
         void                  initSparseArray(size_t size);
@@ -41,6 +44,12 @@ template<typename T>
 Entity::Entity ComponentManager<T>::getEntityID(size_t position)
 {
     return denseMap[position];
+}
+
+template<typename T>
+size_t ComponentManager<T>::size()
+{
+    return dense.size();
 }
 
 template<typename T>
@@ -73,9 +82,13 @@ void ComponentManager<T>::destroyEntity(Entity::Entity entity)
     uint32_t entityAtBack = denseMap.back(); // get entity ID that's at the back
     
     // Swap positions so deleted entity is replaced by back one
-    dense[indexToRemove] = dense.back(); 
-    denseMap[indexToRemove] = entityAtBack; 
-    sparse[entityAtBack] = indexToRemove;
+
+    if (entityAtBack != entity)
+    {
+        dense[indexToRemove] = dense.back(); 
+        denseMap[indexToRemove] = entityAtBack; 
+        sparse[entityAtBack] = indexToRemove;
+    }
     
     // Remove superfluous entity
     dense.pop_back();
