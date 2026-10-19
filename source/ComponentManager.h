@@ -28,7 +28,6 @@ class ComponentManager : public IComponentPool
         auto                  end();
 
 
-
     private:
         void                  initSparseArray(size_t size);
         void                  resizeSparse(Entity::Entity entity);
